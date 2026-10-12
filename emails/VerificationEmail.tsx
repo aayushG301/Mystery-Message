@@ -12,17 +12,17 @@ import {
 
 interface VerificationEmailProps {
   username: string;
-  otp: string;
+  verificationUrl: string;
 }
 
 export default function VerificationEmail({
   username,
-  otp,
+  verificationUrl,
 }: VerificationEmailProps) {
   return (
     <Html lang="en" dir="ltr">
       <Head>
-        <title>Verification Code</title>
+        <title>Verify your email</title>
         <Font
           fontFamily="Roboto"
           fallbackFontFamily="Verdana"
@@ -34,33 +34,46 @@ export default function VerificationEmail({
           fontStyle="normal"
         />
       </Head>
-      <Preview>Here&apos;s your verification code: {otp}</Preview>
-      <Section>
+      <Preview>Verify your email to finish signing up</Preview>
+      <Section style={{ padding: "24px" }}>
         <Row>
           <Heading as="h2">Hello {username},</Heading>
         </Row>
         <Row>
           <Text>
-            Thank you for registering. Please use the following verification
-            code to complete your registration:
+            Thank you for registering. Please click the button below to verify
+            your email address and complete your registration:
           </Text>
         </Row>
         <Row>
-          <Text>{otp}</Text>
-        </Row>
-        <Row>
-          <Text>
-            If you did not request this code, please ignore this email.
-          </Text>
-        </Row>
-        {/* <Row>
           <Button
-            href={`http://localhost:3000/verify/${username}`}
-            style={{ color: '#61dafb' }}
+            href={verificationUrl}
+            style={{
+              backgroundColor: "#2563eb",
+              color: "#ffffff",
+              padding: "12px 24px",
+              borderRadius: "6px",
+              fontWeight: 600,
+              textDecoration: "none",
+              display: "inline-block",
+            }}
           >
-            Verify here
+            Verify email
           </Button>
-        </Row> */}
+        </Row>
+        <Row>
+          <Text style={{ fontSize: "13px", color: "#6b7280" }}>
+            If the button doesn&apos;t work, copy and paste this link into your
+            browser:
+            <br />
+            {verificationUrl}
+          </Text>
+        </Row>
+        <Row>
+          <Text style={{ fontSize: "13px", color: "#6b7280" }}>
+            If you did not create an account, you can safely ignore this email.
+          </Text>
+        </Row>
       </Section>
     </Html>
   );

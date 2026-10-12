@@ -1,4 +1,13 @@
 import mongoose from "mongoose";
+import { MongoClient } from "mongodb";
+
+const uri = process.env.DB_URI as string;
+
+if (!uri) {
+  throw new Error("DB_URI is not defined in the .env file");
+}
+
+export const client = new MongoClient(uri);
 
 type ConnectionObject = {
   isConnected?: number;
@@ -13,7 +22,7 @@ async function dbConnect(): Promise<void> {
   }
 
   try {
-    const db = await mongoose.connect(process.env.DB_URI as string);
+    const db = await mongoose.connect(uri);
     connection.isConnected = db.connections[0].readyState;
 
     console.log("DB connected");
