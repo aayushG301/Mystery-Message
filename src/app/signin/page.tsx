@@ -1,26 +1,13 @@
-"use client";
-
-import { authClient } from "@/src/lib/auth-client";
+import { Suspense } from "react";
+import SignInForm from "@/src/components/SignInForm";
 
 export default function SignInPage() {
-  async function handleSignin() {
-    const { data, error } = await authClient.signIn.email({
-      email: "",
-      password: "",
-      rememberMe: true,
-      callbackURL: "https://example.com/callback",
-    },
-  {
-    onError(ctx) {
-      console.error("Email not verified:", ctx);
-    }
-  },
+  return (
+    <main className="flex flex-1 items-center justify-center px-4 py-12">
+      {/* SignInForm reads the URL (useSearchParams), so it needs a boundary */}
+      <Suspense fallback={<p className="text-sm text-zinc-500">Loading...</p>}>
+        <SignInForm />
+      </Suspense>
+    </main>
   );
-    if (error) {
-      console.error("Sign-in error:", error);
-      return; 
-    }
-    console.log("Sign-in successful:", data);
-  }
-  return <button onClick={handleSignin}>Sign in</button>;
 }

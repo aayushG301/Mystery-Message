@@ -1,20 +1,9 @@
-import { authClient} from "@/src/lib/auth-client";
+import SignUpForm from "@/src/components/SignUpForm";
 
 export default function SignUpPage() {
-    async function handleSignup() {
-        const { data, error } = await authClient.signUp.email({
-            name: "John Doe", 
-            email: "john.doe@example.com", 
-            password: "password1234", 
-            image: "https://example.com/image.png", 
-            callbackURL: "https://example.com/callback",
-        });
-        
-        if(error) {
-            console.error("signup failed:" , error);
-            return;
-        }
-        console.log("Successfully signed up");
-    }
-    
+  return (
+    <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <SignUpForm />
+    </main>
+  );
 }

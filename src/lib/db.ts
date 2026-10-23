@@ -7,29 +7,25 @@ if (!uri) {
   throw new Error("DB_URI is not defined in the .env file");
 }
 
-export const client = new MongoClient(uri);
-
-type ConnectionObject = {
-  isConnected?: number;
+// Keep one instance of each across dev hot reloads.
+const globalForDb = globalThis as unknown as {
+  mongoClient?: MongoClient;
+  mongooseConn?: Promise<typeof mongoose>;
 };
 
-const connection: ConnectionObject = {};
+// Used by better-auth (users, sessions, accounts).
+export const client = globalForDb.mongoClient ?? new MongoClient(uri);
+if (process.env.NODE_ENV !== "production") globalForDb.mongoClient = client;
 
-async function dbConnect(): Promise<void> {
-  if (connection.isConnected) {
-    console.log("DB already connected");
-    return;
+// Used by Mongoose models (messages).
+async function dbConnect(): Promise<typeof mongoose> {
+  if (!globalForDb.mongooseConn) {
+    globalForDb.mongooseConn = mongoose.connect(uri).catch((error) => {
+      globalForDb.mongooseConn = undefined; // allow a retry on the next call
+      throw error;
+    });
   }
-
-  try {
-    const db = await mongoose.connect(uri);
-    connection.isConnected = db.connections[0].readyState;
-
-    console.log("DB connected");
-  } catch (error) {
-    console.error("DB connection failed:", error);
-    process.exit(1);
-  }
+  return globalForDb.mongooseConn;
 }
 
 export default dbConnect;
