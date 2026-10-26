@@ -2,7 +2,7 @@
 
 An anonymous messaging app. Sign up, get a personal link, and receive honest messages from anyone without them revealing who they are.
 
-**Live demo:** <your-deployed-url>
+**Live demo:** [<your-deployed-url>](https://msg-anonymous.vercel.app/)
 
 ![Mystery Message screenshot](./docs/screenshot.png)
 
