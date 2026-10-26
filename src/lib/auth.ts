@@ -3,6 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { username } from "better-auth/plugins";
 import { client } from "@/src/lib/db";
 import { sendVerificationEmail } from "@/src/helpers/sendVerificationEmail";
+import { sendResetPasswordEmail } from "@/src/helpers/sendResetPasswordEmail";
 
 export const auth = betterAuth({
   database: mongodbAdapter(client.db(), { client }),
@@ -11,6 +12,12 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     minPasswordLength: 8,
+    resetPasswordTokenExpiresIn: 60 * 60, // 1 hour
+    sendResetPassword: async ({ user, url }) => {
+      // Not awaited on purpose (avoids timing differences between known and
+      // unknown emails). On serverless hosts, wrap in waitUntil instead.
+      void sendResetPasswordEmail(user.email, user.name, url);
+    },
   },
 
   emailVerification: {

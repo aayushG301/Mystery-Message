@@ -11,6 +11,7 @@ export default function CopyLinkButton({ url }: { url: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
+      // Clipboard can be blocked; the link is still visible to copy by hand.
     }
   }
 

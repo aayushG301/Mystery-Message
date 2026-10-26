@@ -11,6 +11,8 @@ type Props = {
   onError?: (message: string) => void;
 };
 
+// One pair of buttons that works for both sign-in and sign-up:
+// the account is created on the first social login.
 export default function SocialButtons({ callbackURL, onError }: Props) {
   const [loading, setLoading] = useState<Provider | null>(null);
 
@@ -20,8 +22,10 @@ export default function SocialButtons({ callbackURL, onError }: Props) {
       provider,
       callbackURL,
       newUserCallbackURL: "/onboarding", // first-time users pick a username
-      errorCallbackURL: "/signin",
+      errorCallbackURL: "/sign-in",
     });
+
+    // On success the browser leaves the site, so only errors reach here.
     if (error) {
       onError?.(error.message ?? "Could not start social sign-in");
       setLoading(null);

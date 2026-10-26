@@ -5,6 +5,12 @@ import { messageSchema } from "@/src/schema/message.schema";
 import type { ApiResponse } from "@/src/types/ApiResponse";
 import { errorClass, infoClass, primaryButtonClass } from "@/src/components/ui";
 
+const SUGGESTIONS = [
+  "What's something you're proud of that most people don't know?",
+  "If you could master any skill overnight, what would it be?",
+  "What's the best advice you've ever received?",
+];
+
 export default function SendMessageForm({ username }: { username: string }) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,6 +67,24 @@ export default function SendMessageForm({ username }: { username: string }) {
       <div className="flex items-center justify-between text-xs text-zinc-500">
         <span>Your identity is never shared.</span>
         <span>{content.length}/500</span>
+      </div>
+      <div className="space-y-2">
+        <p className="text-xs font-medium text-zinc-500">
+          Need an idea? Tap one to use it:
+        </p>
+        <div className="flex flex-col gap-2">
+          {SUGGESTIONS.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              disabled={loading}
+              onClick={() => setContent(suggestion)}
+              className="rounded-lg border border-black/10 px-3 py-2 text-left text-xs transition hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:hover:bg-white/10"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
       </div>
       {result && (
         <p className={result.ok ? infoClass : errorClass}>{result.text}</p>

@@ -22,6 +22,7 @@ export async function DELETE(
 
   try {
     await dbConnect();
+    // Filtering by userId means you can only delete your own messages.
     const result = await MessageModel.deleteOne({
       _id: messageId,
       userId: session.user.id,

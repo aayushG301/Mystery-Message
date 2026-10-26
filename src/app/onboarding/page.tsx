@@ -24,7 +24,7 @@ export default function OnboardingPage() {
 
 async function OnboardingGate() {
   const session = await getSession();
-  if (!session) redirect("/signin");
+  if (!session) redirect("/sign-in");
   if (session.user.username) redirect("/dashboard");
   return <OnboardingForm />;
 }

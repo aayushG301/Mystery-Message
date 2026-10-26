@@ -10,7 +10,7 @@ export default function AcceptMessagesToggle({ initial }: { initial: boolean }) 
 
   async function handleToggle() {
     const next = !accepting;
-    setAccepting(next); 
+    setAccepting(next); // optimistic
     setSaving(true);
     setError(null);
 
@@ -23,7 +23,7 @@ export default function AcceptMessagesToggle({ initial }: { initial: boolean }) 
       const data: ApiResponse = await res.json();
       if (!data.success) throw new Error(data.message);
     } catch (err) {
-      setAccepting(!next); 
+      setAccepting(!next); // roll back
       setError(err instanceof Error ? err.message : "Could not save");
     } finally {
       setSaving(false);

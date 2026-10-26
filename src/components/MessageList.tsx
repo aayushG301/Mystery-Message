@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ApiResponse, MessageItem } from "@/src/types/ApiResponse";
 
+// Fixed locale + UTC so the server render and the browser render match.
 function formatDate(iso: string) {
   return (
     new Date(iso).toLocaleString("en-US", {
@@ -38,6 +39,7 @@ export default function MessageList({
   }
 
   async function handleDelete(id: string) {
+    if (!window.confirm("Delete this message? This can't be undone.")) return;
     setError(null);
     try {
       const res = await fetch(`/api/delete-message/${id}`, { method: "DELETE" });
@@ -70,11 +72,11 @@ export default function MessageList({
           No messages yet. Share your link to get started.
         </p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid gap-4 sm:grid-cols-2">
           {messages.map((m) => (
             <li
               key={m.id}
-              className="flex items-start justify-between gap-4 rounded-xl border border-black/10 p-4 dark:border-white/15"
+              className="flex items-start justify-between gap-4 rounded-xl border border-black/10 p-4 shadow-sm dark:border-white/15"
             >
               <div className="space-y-1">
                 <p className="whitespace-pre-wrap break-words text-sm">{m.content}</p>

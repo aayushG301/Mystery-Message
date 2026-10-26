@@ -19,7 +19,7 @@ export default function CheckEmailPage({
           <EmailDetails searchParams={searchParams} />
         </Suspense>
         <Link
-          href="/signin"
+          href="/sign-in"
           className="block text-sm font-medium text-blue-600 hover:underline"
         >
           Back to sign in

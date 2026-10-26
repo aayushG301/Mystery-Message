@@ -25,7 +25,7 @@ export default function SignInForm() {
   const callbackURL = safeCallback(searchParams.get("callbackUrl"));
   const oauthFailed = searchParams.get("error") !== null;
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,28 +34,43 @@ export default function SignInForm() {
     e.preventDefault();
     setError(null);
 
-    const parsed = signInSchema.safeParse({ email, password });
+    const parsed = signInSchema.safeParse({ identifier, password });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid input");
       return;
     }
 
+    const { identifier: id, password: pw } = parsed.data;
+    const isEmail = id.includes("@");
+
     setLoading(true);
-    const { error: signInError } = await authClient.signIn.email({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      rememberMe: true,
-      callbackURL, // better-auth redirects here on success
-    });
+    // One box, two ways in: an "@" means email, otherwise it's a username.
+    const { error: signInError } = isEmail
+      ? await authClient.signIn.email({
+          email: id,
+          password: pw,
+          rememberMe: true,
+          callbackURL, // better-auth redirects here on success
+        })
+      : await authClient.signIn.username({
+          username: id,
+          password: pw,
+          rememberMe: true,
+          callbackURL,
+        });
 
     if (signInError) {
       setLoading(false);
       if (signInError.status === 403) {
         // Email not verified. better-auth has already sent a fresh link.
-        router.push(`/check-email?email=${encodeURIComponent(parsed.data.email)}`);
+        router.push(
+          isEmail
+            ? `/check-email?email=${encodeURIComponent(id)}`
+            : "/check-email",
+        );
         return;
       }
-      setError("Invalid email or password");
+      setError("Invalid email/username or password");
     }
     // On success the page is redirected, so the loading state stays on.
   }
@@ -64,7 +79,9 @@ export default function SignInForm() {
     <div className={`${cardClass} space-y-6`}>
       <div className="space-y-1 text-center">
         <h1 className="text-2xl font-semibold">Welcome back</h1>
-        <p className="text-sm text-zinc-500">Sign in to see your messages</p>
+        <p className="text-sm text-zinc-500">
+          Sign in to continue your secret conversations
+        </p>
       </div>
 
       {(oauthFailed || error) && (
@@ -75,24 +92,31 @@ export default function SignInForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div className="space-y-1">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
+          <label htmlFor="identifier" className="text-sm font-medium">
+            Email or username
           </label>
           <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="identifier"
+            type="text"
+            autoComplete="username"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
             disabled={loading}
             className={inputClass}
-            placeholder="you@example.com"
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="password" className="text-sm font-medium">
-            Password
-          </label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="text-sm font-medium">
+              Password
+            </label>
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-blue-600 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <input
             id="password"
             type="password"
@@ -117,9 +141,9 @@ export default function SignInForm() {
       <SocialButtons callbackURL={callbackURL} onError={setError} />
 
       <p className="text-center text-sm text-zinc-500">
-        New here?{" "}
-        <Link href="/signup" className="font-medium text-blue-600 hover:underline">
-          Create an account
+        Not a member yet?{" "}
+        <Link href="/sign-up" className="font-medium text-blue-600 hover:underline">
+          Sign up
         </Link>
       </p>
     </div>

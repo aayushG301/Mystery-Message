@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { findUserByUsername } from "@/src/lib/users";
 import SendMessageForm from "@/src/components/SendMessageForm";
 import { cardClass } from "@/src/components/ui";
@@ -16,9 +17,9 @@ export default function PublicProfilePage({ params }: { params: Params }) {
           <Profile params={params} />
         </Suspense>
         <p className="text-center text-sm text-zinc-500">
-          Want your own link?{" "}
-          <Link href="/signup" className="font-medium text-blue-600 hover:underline">
-            Create one
+          Want your own message board?{" "}
+          <Link href="/sign-up" className="font-medium text-blue-600 hover:underline">
+            Get yours
           </Link>
         </p>
       </div>
@@ -27,6 +28,10 @@ export default function PublicProfilePage({ params }: { params: Params }) {
 }
 
 async function Profile({ params }: { params: Params }) {
+  // Opt this component into request-time rendering before any database work,
+  // because the database driver reads the current time internally.
+  await connection();
+
   const { username } = await params;
   const user = await findUserByUsername(decodeURIComponent(username));
   if (!user) notFound();

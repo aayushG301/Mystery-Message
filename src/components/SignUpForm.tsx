@@ -39,11 +39,11 @@ export default function SignUpForm() {
 
     setLoading(true);
     const { error: signUpError } = await authClient.signUp.email({
-      name: parsed.data.username, 
+      name: parsed.data.username, // better-auth requires a name
       username: parsed.data.username,
       email: parsed.data.email,
       password: parsed.data.password,
-      callbackURL: "/dashboard", 
+      callbackURL: "/dashboard", // where the verification link lands the user
     });
     setLoading(false);
 
@@ -52,6 +52,7 @@ export default function SignUpForm() {
       return;
     }
 
+    // No session yet: the email must be verified first.
     router.push(`/check-email?email=${encodeURIComponent(parsed.data.email)}`);
   }
 
@@ -60,7 +61,7 @@ export default function SignUpForm() {
       <div className="space-y-1 text-center">
         <h1 className="text-2xl font-semibold">Create your account</h1>
         <p className="text-sm text-zinc-500">
-          Get your own link to receive anonymous messages
+          Sign up to start your anonymous adventure
         </p>
       </div>
 
@@ -87,6 +88,9 @@ export default function SignUpForm() {
             className={inputClass}
             placeholder="you@example.com"
           />
+          <p className="text-xs text-zinc-500">
+            We will send you a verification link.
+          </p>
         </div>
         <div className="space-y-1">
           <label htmlFor="password" className="text-sm font-medium">
@@ -117,8 +121,8 @@ export default function SignUpForm() {
       <SocialButtons callbackURL="/dashboard" onError={setError} />
 
       <p className="text-center text-sm text-zinc-500">
-        Already have an account?{" "}
-        <Link href="/signin" className="font-medium text-blue-600 hover:underline">
+        Already a member?{" "}
+        <Link href="/sign-in" className="font-medium text-blue-600 hover:underline">
           Sign in
         </Link>
       </p>

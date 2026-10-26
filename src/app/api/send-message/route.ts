@@ -4,6 +4,7 @@ import MessageModel from "@/src/model/Message.model";
 import { findUserByUsername } from "@/src/lib/users";
 import { messageSchema } from "@/src/schema/message.schema";
 import { usernameValidation } from "@/src/schema/signUp.schema";
+import { getClientIp, rateLimit } from "@/src/lib/rate-limit";
 import type { ApiResponse } from "@/src/types/ApiResponse";
 
 const bodySchema = messageSchema.extend({ username: usernameValidation });
@@ -12,7 +13,20 @@ function json(body: ApiResponse, status = 200) {
   return Response.json(body, { status });
 }
 
+// Public: anyone may send an anonymous message to an accepting user.
 export async function POST(request: Request) {
+  // 5 messages per minute per IP, to blunt spam and flooding.
+  const limit = rateLimit(`send:${getClientIp(request)}`, 5, 60_000);
+  if (!limit.allowed) {
+    return Response.json(
+      {
+        success: false,
+        message: `Too many messages. Try again in ${limit.retryAfterSeconds}s.`,
+      } satisfies ApiResponse,
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
+  }
+
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return json(
